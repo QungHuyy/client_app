@@ -32,26 +32,44 @@ function Detail_Product(props) {
 
     const [sale, setSale] = useState()
 
+    // Thêm state mới
+    const [canReview, setCanReview] = useState(true); // Tạm thời set thành true để test
+    const [reviewMessage, setReviewMessage] = useState('Bạn có thể đánh giá sản phẩm này');
+
     // Hàm này dùng để gọi API hiển thị sản phẩm
     useEffect(() => {
-
         const fetchData = async () => {
+            const response = await Product.Get_Detail_Product(id);
+            set_product(response);
 
-            const response = await Product.Get_Detail_Product(id)
-
-            set_product(response)
-
-            const resDetail = await SaleAPI.checkSale(id)
+            const resDetail = await SaleAPI.checkSale(id);
             
-            if (resDetail.msg === "Thanh Cong"){
-                setSale(resDetail.sale)
+            if (resDetail.msg === "Thanh Cong") {
+                setSale(resDetail.sale);
             }
 
+            // Tạm thời comment phần này để test
+            /*
+            if (sessionStorage.getItem('id_user')) {
+                try {
+                    const reviewCheck = await CommentAPI.check_can_review(
+                        id, 
+                        sessionStorage.getItem('id_user')
+                    );
+                    
+                    setCanReview(reviewCheck.canReview);
+                    setReviewMessage(reviewCheck.message);
+                } catch (error) {
+                    console.error("Error checking review permission:", error);
+                    setCanReview(false);
+                    setReviewMessage("Không thể kiểm tra quyền đánh giá");
+                }
+            }
+            */
         }
 
-        fetchData()
-
-    }, [id])
+        fetchData();
+    }, [id]);
 
 
     const [count, set_count] = useState(1)
@@ -62,8 +80,20 @@ function Detail_Product(props) {
 
     // Hàm này dùng để thêm vào giỏ hàng
     const handler_addcart = (e) => {
-
         e.preventDefault()
+        
+        // Kiểm tra nếu sản phẩm hết hàng
+        if (product.number <= 0) {
+            alert("Sản phẩm đã hết hàng!");
+            return;
+        }
+        
+        // Kiểm tra nếu số lượng đặt lớn hơn số lượng tồn kho
+        if (count > product.number) {
+            alert(`Chỉ còn ${product.number} sản phẩm trong kho!`);
+            set_count(product.number);
+            return;
+        }
 
         const data = {
             id_cart: Math.random().toString(),
@@ -85,7 +115,6 @@ function Detail_Product(props) {
         setTimeout(() => {
             set_show_success(false)
         }, 1000)
-
     }
 
 
@@ -124,46 +153,57 @@ function Detail_Product(props) {
 
     // Hàm này dùng để gọi API post comment sản phẩm của user
     const handler_Comment = () => {
-
         if (!sessionStorage.getItem('id_user')) { // Khi khách hàng chưa đăng nhập
-
-            set_error_comment(true)
-
-        } else { // Khi khách hàng đã đăng nhập
-
-            if (!comment) {
-                set_validation_comment(true)
-                return
-            }
-
-            const data = {
-                id_user: sessionStorage.getItem('id_user'),
-                content: comment,
-                star: star
-            }
-
-            const post_data = async () => {
-
-                const response = await CommentAPI.post_comment(data, id)
-
-                console.log(response)
-
-                set_load_comment(true)
-
-                set_comment('')
-
-                set_modal(false)
-
-            }
-
-            post_data()
-
+            set_error_comment(true);
+            setTimeout(() => {
+                set_error_comment(false);
+            }, 1500);
+            return;
+        }
+        
+        if (!canReview) { // Khi khách hàng không có quyền đánh giá
+            alert(reviewMessage || "Bạn không thể đánh giá sản phẩm này");
+            return;
         }
 
-        setTimeout(() => {
-            set_error_comment(false)
-        }, 1500)
+        if (!comment) {
+            set_validation_comment(true);
+            return;
+        }
 
+        const data = {
+            id_user: sessionStorage.getItem('id_user'),
+            content: comment,
+            star: star
+        }
+
+        const post_data = async () => {
+            try {
+                const response = await CommentAPI.post_comment(data, id);
+                
+                if (response.success) {
+                    alert(response.message || "Đánh giá của bạn đã được gửi thành công");
+                    set_load_comment(true);
+                    set_comment('');
+                    set_modal(false);
+                    
+                    // Cập nhật lại trạng thái đánh giá
+                    setCanReview(false);
+                    setReviewMessage("Bạn đã đánh giá sản phẩm này rồi");
+                } else {
+                    alert(response.message || "Có lỗi xảy ra khi gửi đánh giá");
+                }
+            } catch (error) {
+                console.error("Error posting review:", error);
+                if (error.response && error.response.data) {
+                    alert(error.response.data.message || "Có lỗi xảy ra khi gửi đánh giá");
+                } else {
+                    alert("Có lỗi xảy ra khi gửi đánh giá");
+                }
+            }
+        }
+
+        post_data();
     }
 
 
@@ -256,8 +296,7 @@ function Detail_Product(props) {
                                     </div>
                                     <div className="product-desc">
                                         <p>
-                                            <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel harum tenetur delectus nam quam assumenda? Soluta vitae tempora ratione excepturi doloremque, repudiandae ullam, eum corporis, itaque dolor aperiam enim aspernatur.
-                                            </span>
+                                            <span>{product.describe || ""}</span>
                                         </p>
                                     </div>
                                     <div className="product-variants">
@@ -280,7 +319,14 @@ function Detail_Product(props) {
                                                     <div className="inc qtybutton" onClick={upCount}><i className="fa fa-angle-up"></i></div>
                                                 </div>
                                             </div>
-                                            <a href="#" className="add-to-cart" type="submit" onClick={handler_addcart}>Add to cart</a>
+                                            {product.number > 0 ? (
+                                                <>
+                                                    <span className="in-stock">Còn hàng: {product.number}</span>
+                                                    <a href="#" className="add-to-cart" type="submit" onClick={handler_addcart}>Add to cart</a>
+                                                </>
+                                            ) : (
+                                                <span className="out-stock">Hết hàng</span>
+                                            )}
                                         </form>
                                     </div>
                                 </div>
@@ -305,7 +351,11 @@ function Detail_Product(props) {
                     <div className="tab-content">
                         <div id="description" className="tab-pane active show" role="tabpanel">
                             <div className="product-description">
-                                <span>The best is yet to come! Give your walls a voice with a framed poster. This aesthethic, optimistic poster will look great in your desk or in an open-space office. Painted wooden frame with passe-partout for more depth.</span>
+                                {product.describe ? (
+                                    <span>{product.describe}</span>
+                                ) : (
+                                    <span>Chưa có thông tin mô tả cho sản phẩm này.</span>
+                                )}
                             </div>
                         </div>
                         <div id="reviews" className="tab-pane" role="tabpanel">
@@ -331,21 +381,45 @@ function Detail_Product(props) {
                                     </div>
 
                                     <div className="review-btn" style={{ marginTop: '2rem' }}>
-                                        <a className="review-links" style={{ cursor: 'pointer', color: '#fff' }} onClick={() => set_modal(true)}>Write Your Review!</a>
+                                        {sessionStorage.getItem('id_user') ? (
+                                            canReview ? (
+                                                <a className="review-links" style={{ cursor: 'pointer', color: '#fff' }} onClick={() => set_modal(true)}>
+                                                    Write Your Review!
+                                                </a>
+                                            ) : (
+                                                <a className="review-links" style={{ cursor: 'not-allowed', color: '#ccc' }} title={reviewMessage}>
+                                                    {reviewMessage || "Bạn không thể đánh giá sản phẩm này"}
+                                                </a>
+                                            )
+                                        ) : (
+                                            <a className="review-links" style={{ cursor: 'pointer', color: '#fff' }} onClick={() => set_modal(true)}>
+                                                Write Your Review!
+                                            </a>
+                                        )}
                                     </div>
                                     <Modal onHide={() => set_modal(false)} show={modal} className="modal fade modal-wrapper">
                                         <div className="modal-dialog modal-dialog-centered" role="document">
                                             <div className="modal-content">
                                                 <div className="modal-body">
                                                     <h3 className="review-page-title">Write Your Review</h3>
+                                                    {!sessionStorage.getItem('id_user') && (
+                                                        <div className="alert alert-warning">
+                                                            Vui lòng đăng nhập để đánh giá sản phẩm
+                                                        </div>
+                                                    )}
+                                                    {sessionStorage.getItem('id_user') && !canReview && (
+                                                        <div className="alert alert-warning">
+                                                            {reviewMessage || "Bạn không thể đánh giá sản phẩm này"}
+                                                        </div>
+                                                    )}
                                                     <div className="modal-inner-area row">
                                                         <div className="col-lg-6">
                                                             <div className="li-review-product">
                                                                 <img src={product.image} alt="Li's Product" style={{ width: '20rem' }} />
                                                                 <div className="li-review-product-desc">
-                                                                    <p className="li-product-name">Today is a good day Framed poster</p>
+                                                                    <p className="li-product-name">{product.name_product}</p>
                                                                     <p>
-                                                                        <span>Beach Camera Exclusive Bundle - Includes Two Samsung Radiant 360 R3 Wi-Fi Bluetooth Speakers. Fill The Entire Room With Exquisite Sound via Ring Radiator Technology. Stream And Control R3 Speakers Wirelessly With Your Smartphone. Sophisticated, Modern Design </span>
+                                                                        <span>{product.describe || ""}</span>
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -370,15 +444,29 @@ function Detail_Product(props) {
                                                                             </p>
                                                                             <p className="feedback-form">
                                                                                 <label htmlFor="feedback">Your Review</label>
-                                                                                <textarea id="feedback" name="comment" cols="45" rows="8" aria-required="true" onChange={(e) => set_comment(e.target.value)}></textarea>
-                                                                                {
-                                                                                    validation_comment && <span style={{ color: 'red' }}>* This is required!</span>
-                                                                                }
+                                                                                <textarea 
+                                                                                    id="feedback" 
+                                                                                    name="comment" 
+                                                                                    cols="45" 
+                                                                                    rows="8" 
+                                                                                    aria-required="true" 
+                                                                                    onChange={(e) => set_comment(e.target.value)}
+                                                                                    disabled={!canReview}
+                                                                                ></textarea>
+                                                                                {validation_comment && <span style={{ color: 'red' }}>* This is required!</span>}
                                                                             </p>
                                                                             <div className="feedback-input">
                                                                                 <div className="feedback-btn pb-15">
                                                                                     <a className="close" onClick={() => set_modal(false)}>Close</a>
-                                                                                    <a style={{ cursor: 'pointer' }} onClick={handler_Comment}>Submit</a>
+                                                                                    <a 
+                                                                                        style={{ 
+                                                                                            cursor: canReview ? 'pointer' : 'not-allowed',
+                                                                                            opacity: canReview ? 1 : 0.5
+                                                                                        }} 
+                                                                                        onClick={handler_Comment}
+                                                                                    >
+                                                                                        Submit
+                                                                                    </a>
                                                                                 </div>
                                                                             </div>
                                                                         </form>

@@ -104,25 +104,26 @@ function SignUp(props) {
                             setCheckPass(false)
                             
                             const fetchData = async () => {
-                                
-                                const data = {
-                                    email: email,
-                                    username: username,
-                                    password: password,
-                                    fullname: fullname,
-                                    id_permission: '6087dcb5f269113b3460fce4'
+                                try {
+                                    const data = {
+                                        email: email,
+                                        username: username,
+                                        password: password,
+                                        fullname: fullname,
+                                        id_permission: '6087dcb5f269113b3460fce4'
+                                    }
+
+                                    const response = await User.Post_User(data)
+                                    console.log(response)
+
+                                    if (response === 'User Da Ton Tai') {
+                                        set_username_exist(true)
+                                    } else {
+                                        set_show_success(true)
+                                    }
+                                } catch (error) {
+                                    console.error("Đăng ký thất bại:", error)
                                 }
-
-                                const response = await User.Post_User(data)
-
-                                console.log(response)
-
-                                if (response === 'User Da Ton Tai'){
-                                    set_username_exist(true)
-                                }else{
-                                    set_show_success(true)
-
-                                }  
                             }
 
                             fetchData()

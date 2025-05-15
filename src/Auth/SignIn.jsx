@@ -31,47 +31,40 @@ function SignIn(props) {
     const count_change = useSelector(state => state.Count.isLoad)
 
     const handler_signin = (e) => {
-
         e.preventDefault()
 
         const fetchData = async () => {
+            try {
+                const params = {
+                    username,
+                    password
+                }
 
-            const params = {
-                username,
-                password
-            }
+                const query = '?' + queryString.stringify(params)
+                const response = await User.Get_Detail_User(query)
 
-            const query = '?' + queryString.stringify(params)
-
-            const response = await User.Get_Detail_User(query)
-
-            if (response === "Khong Tìm Thấy User"){
-                set_error_username(true)
-            }else{
-                if (response === "Sai Mat Khau"){
+                if (response === "Khong Tìm Thấy User") {
+                    set_error_username(true)
+                    set_error_password(false)
+                } else if (response === "Sai Mat Khau") {
                     set_error_username(false)
                     set_error_password(true)
-                }else{
-
-                   console.log(response)
-
+                } else {
+                    console.log(response)
                     const action = addSession(response._id)
                     dispatch(action)
-
                     sessionStorage.setItem('id_user', response._id)
-                    
                     const action_count_change = changeCount(count_change)
                     dispatch(action_count_change)
-
                     set_redirect(true)
-
                 }
+            } catch (error) {
+                console.error("Đăng nhập thất bại:", error)
+                set_error_username(true)
             }
-
         }
 
         fetchData()
-
     }
 
     return (

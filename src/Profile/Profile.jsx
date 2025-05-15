@@ -57,18 +57,20 @@ function Profile(props) {
     const [compare_password, set_compare_password] = useState('')
 
     const handler_update = async () => {
-        
-        const data = {
-            _id: sessionStorage.getItem('id_user'),
-            fullname: name,
-            username: username,
-            password: compare_password
+        try {
+            const data = {
+                _id: sessionStorage.getItem('id_user'),
+                fullname: name,
+                username: username,
+                password: compare_password
+            }
+
+            await User.Put_User(data)
+            window.location.reload()
+        } catch (error) {
+            console.error("Cập nhật thất bại:", error)
+            alert("Cập nhật thất bại. Vui lòng thử lại sau.")
         }
-
-        await User.Put_User(data)
-
-        window.location.reload()
-
     }
 
     return (
