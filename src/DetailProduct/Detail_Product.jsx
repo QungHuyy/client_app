@@ -152,9 +152,36 @@ function Detail_Product(props) {
                 setAvailableQuantity(response.number);
             }
 
-            // Sử dụng checkSale thay vì Get_Detail_Product
-            const response_sale = await SaleAPI.checkSale(id);
-            set_sale(response_sale);
+            // Kiểm tra khuyến mãi
+            try {
+                const response_sale = await SaleAPI.checkSale(id);
+                console.log("Thông tin khuyến mãi:", response_sale);
+                
+                // Kiểm tra cấu trúc dữ liệu trả về
+                if (response_sale && response_sale.msg === "Thanh Cong" && response_sale.sale) {
+                    // Kiểm tra xem khuyến mãi có đang active không
+                    const saleData = response_sale.sale;
+                    const currentDate = new Date();
+                    const startDate = new Date(saleData.start);
+                    const endDate = new Date(saleData.end);
+                    console.log("Ngày hiện tại:", currentDate);
+                    console.log("Ngày bắt đầu:", startDate);
+                    console.log("Ngày kết thúc:", endDate);
+                    if (saleData.status && currentDate >= startDate && currentDate <= endDate) {
+                        set_sale(saleData);
+                        console.log("Áp dụng khuyến mãi:", saleData.promotion + "%");
+                    } else {
+                        console.log("Khuyến mãi không còn hiệu lực hoặc chưa bắt đầu");
+                        set_sale(null);
+                    }
+                } else {
+                    console.log("Không có khuyến mãi cho sản phẩm này");
+                    set_sale(null);
+                }
+            } catch (error) {
+                console.error("Lỗi khi kiểm tra khuyến mãi:", error);
+                set_sale(null);
+            }
             
             // Lấy danh sách comment
             const response_comment = await CommentAPI.get_comment(id);
