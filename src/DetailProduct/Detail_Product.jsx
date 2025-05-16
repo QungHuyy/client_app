@@ -20,6 +20,9 @@ function Detail_Product(props) {
     const [show_success, set_show_success] = useState(false);
     const [size, set_size] = useState('S');
     const [availableQuantity, setAvailableQuantity] = useState(0);
+    const [inventoryS, setInventoryS] = useState('0');
+    const [inventoryM, setInventoryM] = useState('0');
+    const [inventoryL, setInventoryL] = useState('0');
     
     // Thêm state cho phần review
     const [canReview, setCanReview] = useState(false);
@@ -60,7 +63,10 @@ function Detail_Product(props) {
             price_product: sale ? calculateDiscountedPrice(product.price_product, sale.promotion) : product.price_product,
             count: count,
             image: product.image,
-            size: size,
+             size: size,
+            // inventory: {
+            //     [size]: count
+            // }
         };
 
         CartsLocal.addProduct(data);
@@ -127,7 +133,7 @@ function Detail_Product(props) {
             star: star
         };
 
-        await CommentAPI.post_comment(data);
+        await CommentAPI.post_comment(data,id);
         set_modal(false);
         
         // Cập nhật lại danh sách comment

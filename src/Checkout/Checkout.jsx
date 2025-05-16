@@ -43,6 +43,7 @@ function Checkout(props) {
       
       for (const item of carts) {
         const product = await Product.Get_Detail_Product(item.id_product);
+        
         inventory[item.id_product] = product.inventory || { S: product.number || 0, M: 0, L: 0 };
       }
       
@@ -156,6 +157,9 @@ function Checkout(props) {
         price_product: item.price_product,
         count: item.count,
         size: item.size,
+         inventory: {
+           [item.size]:item.count
+        },
       };
       await Detail_OrderAPI.post_detail_order(detailData);
     }
