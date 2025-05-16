@@ -135,7 +135,7 @@ function Header(props) {
     }
 
 
-    // Hàm này dùng để xóa carts_mini
+    // Hàm này dùng để Delete carts_mini
     const handler_delete_mini = (id_cart) => {
 
         CartsLocal.deleteProduct(id_cart)

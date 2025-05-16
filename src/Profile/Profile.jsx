@@ -13,7 +13,7 @@ Profile.propTypes = {
 function Profile(props) {
 
     // Hàm này dùng để render html cho từng loại edit profile hoặc change password
-    // Tùy theo người dùng chọn
+    // Tùy theo User chọn
     const [edit_status, set_edit_status] = useState('edit_profile')
 
     const handler_Status = (value) => {

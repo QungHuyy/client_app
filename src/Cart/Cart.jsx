@@ -24,7 +24,7 @@ function Cart(props) {
 
     const [total_price, set_total_price] = useState(0)
 
-    // Hàm này dùng để hiện thị danh sách sản phẩm đã thêm vào giỏ hàng
+    // Hàm này dùng để hiện thị danh sách Product đã thêm vào giỏ hàng
     // và tính tổng tiền
     useEffect(() => {
 
@@ -86,7 +86,7 @@ function Cart(props) {
 
     }
 
-    // Hàm này dùng để xóa giỏ hàng
+    // Hàm này dùng để Delete giỏ hàng
     const handler_delete_carts = (id_cart) => {
 
         CartsLocal.deleteProduct(id_cart)

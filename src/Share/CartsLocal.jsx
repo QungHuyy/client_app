@@ -20,7 +20,7 @@ const CartsLocal = {
 
         } else {           
 
-            //Tìm xem thử sản phẩm này đã mua hay chưa
+            //Tìm xem thử Product này đã mua hay chưa
             const findCart = add_cart.find(value => {
                 return value.id_product === data_add_cart.id_product
             })
@@ -62,12 +62,12 @@ const CartsLocal = {
 
         console.log(data)
 
-        //Tìm kiểm vị trí mà cần xóa
+        //Tìm kiểm vị trí mà cần Delete
         const indexDelete = delete_cart.findIndex(value => {
             return value.id_cart === data
         })
 
-        //Xóa theo vị trí
+        //Delete theo vị trí
         delete_cart.splice(indexDelete, 1)
 
         localStorage.setItem('carts', JSON.stringify(delete_cart))

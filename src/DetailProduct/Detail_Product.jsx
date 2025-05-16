@@ -34,9 +34,9 @@ function Detail_Product(props) {
 
     // Thêm state mới
     const [canReview, setCanReview] = useState(true); // Tạm thời set thành true để test
-    const [reviewMessage, setReviewMessage] = useState('Bạn có thể đánh giá sản phẩm này');
+    const [reviewMessage, setReviewMessage] = useState('Bạn có thể Rating Product này');
 
-    // Hàm này dùng để gọi API hiển thị sản phẩm
+    // Hàm này dùng để gọi API hiển thị Product
     useEffect(() => {
         const fetchData = async () => {
             const response = await Product.Get_Detail_Product(id);
@@ -62,7 +62,7 @@ function Detail_Product(props) {
                 } catch (error) {
                     console.error("Error checking review permission:", error);
                     setCanReview(false);
-                    setReviewMessage("Không thể kiểm tra quyền đánh giá");
+                    setReviewMessage("Không thể kiểm tra quyền Rating");
                 }
             }
             */
@@ -82,15 +82,15 @@ function Detail_Product(props) {
     const handler_addcart = (e) => {
         e.preventDefault()
         
-        // Kiểm tra nếu sản phẩm hết hàng
+        // Kiểm tra nếu Product hết hàng
         if (product.number <= 0) {
-            alert("Sản phẩm đã hết hàng!");
+            alert("Product đã hết hàng!");
             return;
         }
         
         // Kiểm tra nếu số lượng đặt lớn hơn số lượng tồn kho
         if (count > product.number) {
-            alert(`Chỉ còn ${product.number} sản phẩm trong kho!`);
+            alert(`Chỉ còn ${product.number} Product trong kho!`);
             set_count(product.number);
             return;
         }
@@ -151,7 +151,7 @@ function Detail_Product(props) {
     // State list_comment
     const [list_comment, set_list_comment] = useState([])
 
-    // Hàm này dùng để gọi API post comment sản phẩm của user
+    // Hàm này dùng để gọi API post comment Product của user
     const handler_Comment = () => {
         if (!sessionStorage.getItem('id_user')) { // Khi khách hàng chưa đăng nhập
             set_error_comment(true);
@@ -161,8 +161,8 @@ function Detail_Product(props) {
             return;
         }
         
-        if (!canReview) { // Khi khách hàng không có quyền đánh giá
-            alert(reviewMessage || "Bạn không thể đánh giá sản phẩm này");
+        if (!canReview) { // Khi khách hàng không có quyền Rating
+            alert(reviewMessage || "Bạn không thể Rating Product này");
             return;
         }
 
@@ -182,23 +182,23 @@ function Detail_Product(props) {
                 const response = await CommentAPI.post_comment(data, id);
                 
                 if (response.success) {
-                    alert(response.message || "Đánh giá của bạn đã được gửi thành công");
+                    alert(response.message || "Rating của bạn đã được gửi thành công");
                     set_load_comment(true);
                     set_comment('');
                     set_modal(false);
                     
-                    // Cập nhật lại trạng thái đánh giá
+                    // Cập nhật lại trạng thái Rating
                     setCanReview(false);
-                    setReviewMessage("Bạn đã đánh giá sản phẩm này rồi");
+                    setReviewMessage("Bạn đã Rating Product này rồi");
                 } else {
-                    alert(response.message || "Có lỗi xảy ra khi gửi đánh giá");
+                    alert(response.message || "Có lỗi xảy ra khi gửi Rating");
                 }
             } catch (error) {
                 console.error("Error posting review:", error);
                 if (error.response && error.response.data) {
-                    alert(error.response.data.message || "Có lỗi xảy ra khi gửi đánh giá");
+                    alert(error.response.data.message || "Có lỗi xảy ra khi gửi Rating");
                 } else {
-                    alert("Có lỗi xảy ra khi gửi đánh giá");
+                    alert("Có lỗi xảy ra khi gửi Rating");
                 }
             }
         }
@@ -207,7 +207,7 @@ function Detail_Product(props) {
     }
 
 
-    // Hàm này dùng để GET API load ra những comment của sản phẩm
+    // Hàm này dùng để GET API load ra những comment của Product
     useEffect(() => {
 
         if (load_comment) {
@@ -354,7 +354,7 @@ function Detail_Product(props) {
                                 {product.describe ? (
                                     <span>{product.describe}</span>
                                 ) : (
-                                    <span>Chưa có thông tin mô tả cho sản phẩm này.</span>
+                                    <span>Chưa có thông tin mô tả cho Product này.</span>
                                 )}
                             </div>
                         </div>
@@ -388,7 +388,7 @@ function Detail_Product(props) {
                                                 </a>
                                             ) : (
                                                 <a className="review-links" style={{ cursor: 'not-allowed', color: '#ccc' }} title={reviewMessage}>
-                                                    {reviewMessage || "Bạn không thể đánh giá sản phẩm này"}
+                                                    {reviewMessage || "Bạn không thể Rating Product này"}
                                                 </a>
                                             )
                                         ) : (
@@ -404,12 +404,12 @@ function Detail_Product(props) {
                                                     <h3 className="review-page-title">Write Your Review</h3>
                                                     {!sessionStorage.getItem('id_user') && (
                                                         <div className="alert alert-warning">
-                                                            Vui lòng đăng nhập để đánh giá sản phẩm
+                                                            Vui lòng đăng nhập để Rating Product
                                                         </div>
                                                     )}
                                                     {sessionStorage.getItem('id_user') && !canReview && (
                                                         <div className="alert alert-warning">
-                                                            {reviewMessage || "Bạn không thể đánh giá sản phẩm này"}
+                                                            {reviewMessage || "Bạn không thể Rating Product này"}
                                                         </div>
                                                     )}
                                                     <div className="modal-inner-area row">

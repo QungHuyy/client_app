@@ -31,12 +31,12 @@ const ReducerCart = (state = initalState, action) => {
 
         //     }else{
 
-        //         //Tìm Vị Trí của sản phẩm đã mua
+        //         //Tìm Vị Trí của Product đã mua
         //         // const indexCart = add_cart.findIndex(value => {
         //         //     return value.id_product === data_add_cart.id_product
         //         // })                
 
-        //         //Tìm xem thử sản phẩm này đã mua hay chưa
+        //         //Tìm xem thử Product này đã mua hay chưa
         //         const findCart = add_cart.find(value => {
         //             return value.id_product === data_add_cart.id_product
         //         })
@@ -82,14 +82,14 @@ const ReducerCart = (state = initalState, action) => {
 
         //     console.log(action.data)
 
-        //     //Tìm kiểm vị trí mà cần xóa
+        //     //Tìm kiểm vị trí mà cần Delete
         //     const indexDelete = delete_cart.findIndex(value => {
         //         return value.id_cart === action.data
         //     })
 
            
 
-        //     //Xóa theo vị trí
+        //     //Delete theo vị trí
         //     delete_cart.splice(indexDelete, 1)
 
         //     state = {

@@ -18,10 +18,12 @@ function SignUp(props) {
     const [password, set_password] = useState('')
     const [confirm, set_confirm] = useState('')
     const [email, set_email] = useState('')
+    const [phone, set_phone] = useState('')
 
     const [show_success, set_show_success] = useState(false)
 
     const [errorEmail, setEmailError] = useState(false)
+    const [errorPhone, setPhoneError] = useState(false)
     const [errorFullname, setFullnameError] = useState(false)
     const [errorUsername, setUsernameError] = useState(false)
     const [errorPassword, setPasswordError] = useState(false)
@@ -34,6 +36,7 @@ function SignUp(props) {
 
         e.preventDefault()
 
+        const phoneRegex = /^(?:\+84|0)(?:3[2-9]|7[0-9]|8[1-9]|9[0-9])[0-9]{7}$/
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!email || !emailRegex.test(email)) {
@@ -41,6 +44,13 @@ function SignUp(props) {
             return;
         } else {
             setEmailError(false);
+        }
+
+        if (!phone || !phoneRegex.test(phone)) {
+            setPhoneError(true);
+            return;
+        } else {
+            setPhoneError(false);
         }
         
 
@@ -107,6 +117,7 @@ function SignUp(props) {
                                 try {
                                     const data = {
                                         email: email,
+                                        phone:phone,
                                         username: username,
                                         password: password,
                                         fullname: fullname,
@@ -188,6 +199,13 @@ function SignUp(props) {
                                             <input className="mb-0" type="text" placeholder="Email" value={email} onChange={(e) => set_email(e.target.value)} />
                                             {
                                                 errorEmail && <span style={{ color: 'red' }}>* Email is required!</span>
+                                            }  
+                                        </div>
+                                         <div className="col-md-12 mb-20">
+                                            <label>Phone *</label>
+                                            <input className="mb-0" type="text" placeholder="0987654321" value={phone} onChange={(e) => set_phone(e.target.value)} />
+                                            {
+                                                errorPhone && <span style={{ color: 'red' }}>* Phone is required!</span>
                                             }  
                                         </div>
                                         <div className="col-md-12 mb-20">

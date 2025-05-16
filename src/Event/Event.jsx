@@ -68,7 +68,7 @@ function Event(props) {
                                         <hr />
                                         <div style={{ marginTop: '.5rem' }}>
                                             <span style={{ fontSize: '1rem', color: 'gray' }}>
-                                                Cơ hội nhận nhiều ưu đãi khi mua sản phẩm tại shop của chúng tôi
+                                                Cơ hội nhận nhiều ưu đãi khi mua Product tại shop của chúng tôi
                                     </span>
                                         </div>
                                         <div style={{ marginTop: '1rem' }} className="d-flex justify-content-center">

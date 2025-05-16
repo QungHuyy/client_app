@@ -43,7 +43,7 @@ function Shop(props) {
         })
     }
 
-    //Gọi hàm để load ra sản phẩm theo pagination dữ vào id params 
+    //Gọi hàm để load ra Product theo pagination dữ vào id params 
     useEffect(() => {
 
         const fetchData = async () => {
@@ -63,7 +63,7 @@ function Shop(props) {
             setProducts(response)
 
 
-            // Gọi API để tính tổng số trang cho từng loại sản phẩm
+            // Gọi API để tính tổng số trang cho từng loại Product
             const params_total_page = {
                 id_category: id
             }
@@ -72,7 +72,7 @@ function Shop(props) {
 
             const response_total_page = await Product.Get_Category_Product(query_total_page)
 
-            //Tính tổng số trang = tổng số sản phẩm / số lượng sản phẩm 1 trang
+            //Tính tổng số trang = tổng số Product / số lượng Product 1 trang
             const totalPage = Math.ceil(parseInt(response_total_page.length) / parseInt(pagination.count))
             console.log(totalPage)
 
@@ -84,7 +84,7 @@ function Shop(props) {
 
     }, [id])
 
-    //Gọi hàm để load ra sản phẩm theo pagination dữ vào id params 
+    //Gọi hàm để load ra Product theo pagination dữ vào id params 
     useEffect(() => {
 
         const fetchData = async () => {
