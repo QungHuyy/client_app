@@ -9,11 +9,17 @@ import Detail_OrderAPI from "../API/Detail_OrderAPI";
 import CouponAPI from "../API/CouponAPI";
 import Paypal from "./Paypal";
 import MoMo from "./MoMo";
+import CartsLocal from "../Share/CartsLocal";
+import Product from "../API/Product";
 
 function Checkout(props) {
-  const [carts, setCarts] = useState([]);
+  const dispatch = useDispatch();
+  const [list_carts, set_list_carts] = useState([]);
+  const count_change = useSelector(state => state.Count.isLoad);
   const [totalPrice, setTotalPrice] = useState(0);
   const [discount, setDiscount] = useState(0);
+  const [productInventory, setProductInventory] = useState({});
+  const [showError, setShowError] = useState(false);
   const [information, setInformation] = useState({
     fullname: "",
     phone: "",
@@ -21,19 +27,30 @@ function Checkout(props) {
     email: "",
   });
   const [redirect, setRedirect] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [orderID, setOrderID] = useState("");
   const [loadOrder, setLoadOrder] = useState(false);
+  const [orderID, setOrderID] = useState("");
 
   const { register, handleSubmit, errors } = useForm();
-  const countChange = useSelector((state) => state.Count.isLoad);
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    const storedCarts = JSON.parse(localStorage.getItem("carts")) || [];
-    setCarts(storedCarts);
-    calculateTotal(storedCarts);
-  }, []);
+    set_list_carts(JSON.parse(localStorage.getItem('carts')) || []);
+    calculateTotal(JSON.parse(localStorage.getItem('carts')) || []);
+    
+    // Lấy thông tin tồn kho của tất cả sản phẩm trong giỏ hàng
+    const fetchProductInventory = async () => {
+      const carts = JSON.parse(localStorage.getItem('carts')) || [];
+      const inventory = {};
+      
+      for (const item of carts) {
+        const product = await Product.Get_Detail_Product(item.id_product);
+        inventory[item.id_product] = product.inventory || { S: product.number || 0, M: 0, L: 0 };
+      }
+      
+      setProductInventory(inventory);
+    };
+    
+    fetchProductInventory();
+  }, [count_change]);
 
   useEffect(() => {
     validateInformation();
@@ -69,7 +86,38 @@ function Checkout(props) {
     setInformation({ ...information, [name]: value });
   };
 
+  // Kiểm tra tồn kho trước khi đặt hàng
+  const validateInventory = () => {
+    let isValid = true;
+    let errorMessage = '';
+    
+    for (const item of list_carts) {
+      const availableQuantity = productInventory[item.id_product] ? 
+        (productInventory[item.id_product][item.size] || 0) : 0;
+        
+      if (parseInt(item.count) > availableQuantity) {
+        isValid = false;
+        errorMessage += `Sản phẩm "${item.name_product}" size ${item.size} chỉ còn ${availableQuantity} trong kho.\n`;
+      }
+    }
+    
+    if (!isValid) {
+      alert(errorMessage + 'Vui lòng cập nhật giỏ hàng của bạn.');
+    }
+    
+    return isValid;
+  };
+
   const handleCheckout = async () => {
+    if (showError) {
+      alert('Vui lòng điền đầy đủ thông tin!');
+      return;
+    }
+    
+    if (!validateInventory()) {
+      return;
+    }
+    
     setLoadOrder(true);
 
     if (localStorage.getItem("id_coupon")) {
@@ -120,7 +168,7 @@ function Checkout(props) {
     localStorage.setItem("carts", JSON.stringify([]));
 
     setRedirect(true);
-    dispatch(changeCount(countChange));
+    dispatch(changeCount(count_change));
   };
 
   const handleMomo = () => {
@@ -196,7 +244,7 @@ function Checkout(props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {carts.map((item, idx) => (
+                    {list_carts.map((item, idx) => (
                       <tr className="cart_item" key={idx}>
                         <td className="cart-product-name">
                           {item.name_product} <strong className="product-quantity"> × {item.count}</strong>

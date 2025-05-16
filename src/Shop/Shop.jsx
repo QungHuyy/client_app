@@ -25,7 +25,8 @@ function Shop(props) {
         page: '1',
         count: '9',
         search: '',
-        category: id
+        category: id,
+        gender: '' // Thêm tham số gender
     })
 
 
@@ -39,74 +40,62 @@ function Shop(props) {
             page: value,
             count: pagination.count,
             search: pagination.search,
-            category: pagination.category
+            category: pagination.category,
+            gender: pagination.gender // Giữ lại giá trị gender
         })
     }
 
-    //Gọi hàm để load ra Product theo pagination dữ vào id params 
+    // Cập nhật useEffect để xử lý gender từ URL
     useEffect(() => {
+        // Kiểm tra nếu id là 'male', 'female' hoặc 'unisex' thì đó là gender
+        let categoryId = id;
+        let genderValue = '';
+        
+        if (id === 'male' || id === 'female' || id === 'unisex') {
+            genderValue = id;
+            categoryId = 'all'; // Nếu lọc theo gender thì category là all
+        }
 
+        setPagination({
+            page: '1',
+            count: pagination.count,
+            search: pagination.search,
+            category: categoryId,
+            gender: genderValue
+        })
+    }, [id])
+
+    // Cập nhật API call để gửi tham số gender
+    useEffect(() => {
         const fetchData = async () => {
-
             const params = {
                 page: pagination.page,
                 count: pagination.count,
                 search: pagination.search,
-                category: id
+                category: pagination.category,
+                gender: pagination.gender
             }
+            
+            console.log("Params being sent:", params);
 
             const query = '?' + queryString.stringify(params)
-
             const response = await Product.Get_Pagination(query)
-            console.log(response)
-
+            console.log("Response from API:", response);
             setProducts(response)
-
-
-            // Gọi API để tính tổng số trang cho từng loại Product
+            
+            // Tính tổng số trang
             const params_total_page = {
-                id_category: id
+                id_category: pagination.category,
+                gender: pagination.gender // Thêm tham số gender
             }
 
             const query_total_page = '?' + queryString.stringify(params_total_page)
-
             const response_total_page = await Product.Get_Category_Product(query_total_page)
-
-            //Tính tổng số trang = tổng số Product / số lượng Product 1 trang
             const totalPage = Math.ceil(parseInt(response_total_page.length) / parseInt(pagination.count))
-            console.log(totalPage)
-
             setTotalPage(totalPage)
-
         }
 
         fetchData()
-
-    }, [id])
-
-    //Gọi hàm để load ra Product theo pagination dữ vào id params 
-    useEffect(() => {
-
-        const fetchData = async () => {
-
-            const params = {
-                page: pagination.page,
-                count: pagination.count,
-                search: pagination.search,
-                category: id
-            }
-
-            const query = '?' + queryString.stringify(params)
-
-            const response = await Product.Get_Pagination(query)
-            console.log(response)
-
-            setProducts(response)
-
-        }
-
-        fetchData()
-
     }, [pagination])
 
 
@@ -154,9 +143,9 @@ function Shop(props) {
             page: pagination.page,
             count: pagination.count,
             search: value,
-            category: pagination.category
+            category: pagination.category,
+            gender: pagination.gender // Giữ lại giá trị gender
         })
-
     }
 
 

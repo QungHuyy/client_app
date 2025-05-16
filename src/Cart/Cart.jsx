@@ -8,6 +8,7 @@ import CartAPI from '../API/CartAPI'
 import queryString from 'query-string'
 import CartsLocal from '../Share/CartsLocal';
 import CouponAPI from '../API/CouponAPI';
+import Product from '../API/Product';
 
 Cart.propTypes = {
 
@@ -24,50 +25,67 @@ function Cart(props) {
 
     const [total_price, set_total_price] = useState(0)
 
+    const [productInventory, setProductInventory] = useState({})
+
     // Hàm này dùng để hiện thị danh sách Product đã thêm vào giỏ hàng
     // và tính tổng tiền
     useEffect(() => {
-
-        set_list_carts(JSON.parse(localStorage.getItem('carts')))
-
-        Sum_Price(JSON.parse(localStorage.getItem('carts')), 0)
-
+        set_list_carts(JSON.parse(localStorage.getItem('carts')) || [])
+        Sum_Price(JSON.parse(localStorage.getItem('carts')) || [], 0)
+        
+        // Lấy thông tin tồn kho của tất cả sản phẩm trong giỏ hàng
+        const fetchProductInventory = async () => {
+            const carts = JSON.parse(localStorage.getItem('carts')) || []
+            const inventory = {}
+            
+            for (const item of carts) {
+                const product = await Product.Get_Detail_Product(item.id_product)
+                inventory[item.id_product] = product.inventory || { S: product.number || 0, M: 0, L: 0 }
+            }
+            
+            setProductInventory(inventory)
+        }
+        
+        fetchProductInventory()
     }, [count_change])
 
 
 
     // Hàm này dùng để tính tổng tiền
     function Sum_Price(carts, sum_price) {
+        if (!carts || carts.length === 0) return
+        
         carts.map(value => {
             return sum_price += parseInt(value.count) * parseInt(value.price_product)
         })
 
         set_total_price(sum_price)
-        set_new_price(sum_price)
     }
 
     // Hàm này dùng để tăng số lượng
-    const upCount = (count, id_cart) => {
+    const upCount = (count, id_cart, id_product, size) => {
+        // Kiểm tra số lượng tồn kho của sản phẩm theo size
+        const availableQuantity = productInventory[id_product] ? 
+            (productInventory[id_product][size] || 0) : 0
+            
+        if (parseInt(count) >= availableQuantity) {
+            alert(`Chỉ còn ${availableQuantity} sản phẩm size ${size} trong kho!`)
+            return
+        }
 
         const data = {
             id_cart: id_cart,
             count: parseInt(count) + 1
         }
 
-        console.log(data)
-
-
-
         CartsLocal.updateProduct(data)
 
         const action_change_count = changeCount(count_change)
         dispatch(action_change_count)
-
     }
 
     // Hàm này dùng để giảm số lượng
     const downCount = (count, id_cart) => {
-
         if (parseInt(count) === 1) {
             return
         }
@@ -77,24 +95,18 @@ function Cart(props) {
             count: parseInt(count) - 1
         }
 
-        console.log(data)
-
         CartsLocal.updateProduct(data)
 
         const action_change_count = changeCount(count_change)
         dispatch(action_change_count)
-
     }
 
-    // Hàm này dùng để Delete giỏ hàng
-    const handler_delete_carts = (id_cart) => {
+    // Hàm này dùng để xóa sản phẩm khỏi giỏ hàng
+    const deleteProduct = (id_cart) => {
+        CartsLocal.removeProduct(id_cart)
 
-        CartsLocal.deleteProduct(id_cart)
-
-        // Thay đổi trạng thái trong redux để load lại cart ở phần header
         const action_change_count = changeCount(count_change)
         dispatch(action_change_count)
-
     }
 
 
@@ -241,70 +253,108 @@ function Cart(props) {
                 <div className="container">
                     <div className="row">
                         <div className="col-12">
-                            <form action="#">
-                                <div className="table-content table-responsive">
-                                    <table className="table">
-                                        <thead>
-                                            <tr>
-                                                <th className="li-product-remove">remove</th>
-                                                <th className="li-product-thumbnail">images</th>
-                                                <th className="cart-product-name">Product</th>
-                                                <th className="li-product-price">Price</th>
-                                                <th className="li-product-price">Size</th>
-                                                <th className="li-product-quantity">Quantity</th>
-                                                <th className="li-product-subtotal">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                list_carts && list_carts.map((value, index) => (
-                                                    <tr key={index}>
-                                                        <td className="li-product-remove" onClick={() => handler_delete_carts(value.id_cart)}>
-                                                            <a style={{ cursor: 'pointer' }}><i className="fa fa-times"></i></a>
-                                                        </td>
-                                                        <td className="li-product-thumbnail"><Link to={`/detail/${value.id_product}`}><img src={value.image} style={{ width: '5rem' }} alt="Li's Product Image" /></Link></td>
-                                                        <td className="li-product-name"><a href="#">{value.name_product}</a></td>
-                                                        <td className="li-product-price"><span className="amount">{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(value.price_product)+ ' VNĐ'}</span></td>
-                                                        <td className="li-product-price"><span className="amount">{value.size}</span></td>
-                                                        <td className="quantity">
-                                                            <label>Quantity</label>
-                                                            <div className="cart-plus-minus">
-                                                                <input className="cart-plus-minus-box" value={value.count} type="text" />
-                                                                <div className="dec qtybutton" onClick={() => downCount(value.count, value.id_cart)}><i className="fa fa-angle-down"></i></div>
-                                                                <div className="inc qtybutton" onClick={() => upCount(value.count, value.id_cart)}><i className="fa fa-angle-up"></i></div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="product-subtotal"><span className="amount">{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(parseInt(value.price_product) * parseInt(value.count))+ ' VNĐ'}</span></td>
+                            {
+                                list_carts && list_carts.length > 0 ? (
+                                    <form action="#">
+                                        <div className="table-content table-responsive">
+                                            <table className="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="li-product-remove">Remove</th>
+                                                        <th className="li-product-thumbnail">Images</th>
+                                                        <th className="cart-product-name">Product</th>
+                                                        <th className="li-product-price">Unit Price</th>
+                                                        <th className="li-product-price">Size</th>
+                                                        <th className="li-product-quantity">Quantity</th>
+                                                        <th className="li-product-subtotal">Total</th>
                                                     </tr>
-                                                ))
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="coupon-all">
-                                            <div class="coupon">
-                                                <input id="coupon_code" class="input-text" onChange={(e) => set_coupon(e.target.value)} value={coupon} placeholder="Coupon code" type="text" /> &nbsp;
-                                                <input class="button" value="Apply coupon" type="submit" onClick={handlerCoupon} />
+                                                </thead>
+                                                <tbody>
+                                                    {
+                                                        list_carts && list_carts.map((value, index) => {
+                                                            const availableQuantity = productInventory[value.id_product] ? 
+                                                                (productInventory[value.id_product][value.size] || 0) : 0
+                                                                
+                                                            return (
+                                                                <tr key={index}>
+                                                                    <td className="li-product-remove">
+                                                                        <a style={{ cursor: 'pointer' }} onClick={() => deleteProduct(value.id_cart)}>
+                                                                            <i className="fa fa-times"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className="li-product-thumbnail">
+                                                                        <Link to={`/detail/${value.id_product}`}>
+                                                                            <img src={value.image} style={{ width: '5rem' }} alt="Li's Product Image" />
+                                                                        </Link>
+                                                                    </td>
+                                                                    <td className="li-product-name">
+                                                                        <a href="#">{value.name_product}</a>
+                                                                    </td>
+                                                                    <td className="li-product-price">
+                                                                        <span className="amount">
+                                                                            {new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(value.price_product)+ ' VNĐ'}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="li-product-price">
+                                                                        <span className="amount">{value.size}</span>
+                                                                        {availableQuantity < value.count && (
+                                                                            <div className="text-danger">
+                                                                                <small>Chỉ còn {availableQuantity} sản phẩm</small>
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="quantity">
+                                                                        <label>Quantity</label>
+                                                                        <div className="cart-plus-minus">
+                                                                            <input className="cart-plus-minus-box" value={value.count} type="text" readOnly />
+                                                                            <div className="dec qtybutton" onClick={() => downCount(value.count, value.id_cart)}>
+                                                                                <i className="fa fa-angle-down"></i>
+                                                                            </div>
+                                                                            <div className="inc qtybutton" onClick={() => upCount(value.count, value.id_cart, value.id_product, value.size)}>
+                                                                                <i className="fa fa-angle-up"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="product-subtotal">
+                                                                        <span className="amount">
+                                                                            {new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(parseInt(value.price_product) * parseInt(value.count))+ ' VNĐ'}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="coupon-all">
+                                                    <div class="coupon">
+                                                        <input id="coupon_code" class="input-text" onChange={(e) => set_coupon(e.target.value)} value={coupon} placeholder="Coupon code" type="text" /> &nbsp;
+                                                        <input class="button" value="Apply coupon" type="submit" onClick={handlerCoupon} />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-5 ml-auto">
-                                        <div className="cart-page-total">
-                                            <h2>Cart totals</h2>
-                                            <ul>
-                                                <li>Sub Total <span>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(total_price) + ' VNĐ'}</span></li>
-                                                <li>Discount <span>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(discount) + ' VNĐ'}</span></li>
-                                                <li>Total <span>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(new_price) + ' VNĐ'}</span></li>
-                                            </ul>
-                                            <a style={{ color: '#fff', cursor: 'pointer', fontWeight: '600' }} onClick={handler_checkout}>Proceed to checkout</a>
+                                        <div className="row">
+                                            <div className="col-md-5 ml-auto">
+                                                <div className="cart-page-total">
+                                                    <h2>Cart totals</h2>
+                                                    <ul>
+                                                        <li>Sub Total <span>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(total_price) + ' VNĐ'}</span></li>
+                                                        <li>Discount <span>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(discount) + ' VNĐ'}</span></li>
+                                                        <li>Total <span>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(new_price) + ' VNĐ'}</span></li>
+                                                    </ul>
+                                                    <a style={{ color: '#fff', cursor: 'pointer', fontWeight: '600' }} onClick={handler_checkout}>Proceed to checkout</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </form>
+                                    </form>
+                                ) : (
+                                    <h3>Giỏ hàng trống</h3>
+                                )
+                            }
                         </div>
                     </div>
                 </div>

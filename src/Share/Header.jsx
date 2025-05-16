@@ -369,7 +369,12 @@ function Header(props) {
                                             <li className="dropdown-holder"><Link to="/">Home</Link></li>
                                             <li className="megamenu-holder"><Link to="/shop/all">Menu</Link>
                                                 <ul class="megamenu hb-megamenu">
-                                                    <li><Link to="/shop/all">Male</Link>
+                                                    <li><Link to="/shop/unisex">Unisex</Link>
+                                                        <ul>
+                                                            {/* Có thể để trống hoặc hiển thị các danh mục unisex nếu có */}
+                                                        </ul>
+                                                    </li>
+                                                    <li><Link to="/shop/male">Male</Link>
                                                         <ul>
                                                             {
                                                                 male && male.map(value => (
@@ -380,7 +385,7 @@ function Header(props) {
                                                             }
                                                         </ul>
                                                     </li>
-                                                    <li><Link to="/shop">Female</Link>
+                                                    <li><Link to="/shop/female">Female</Link>
                                                         <ul>
                                                             {
                                                                 female && female.map(value => (
