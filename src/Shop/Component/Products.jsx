@@ -33,9 +33,9 @@ function Products(props) {
                 products && products.map(value => (
                     <div className="col-lg-4 col-md-4 col-sm-6 mt-40 animate__animated animate__zoomIn col_product" key={value._id}>
                         <div className="single-product-wrap">
-                            <div className="product-image">
-                                <Link to={`/detail/${value._id}`}>
-                                    <img src={value.image} alt="Li's Product Image" />
+                            <div style={{backgroundImage:'url("https://res.cloudinary.com/dwmsfixy5/image/upload/v1747517407/360_F_231809050_gePfxLmiCMgf7b5yQtXtJx8kabb5SYHz_dnhfpx.jpg")'}} className="product-image">
+                                <Link to={`/detail/${value._id}`} >
+                                    <img src={value.image} style={{width:'100%', objectFit:"contain", aspectRatio:"1/1"}} alt="Li's Product Image" />
                                 </Link>
                                 <span className="sticker">New</span>
                             </div>

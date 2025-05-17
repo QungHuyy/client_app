@@ -243,8 +243,8 @@ function Detail_Product(props) {
                         <div className="col-lg-5 col-md-6">
                             <div className="product-details-left">
                                 <div className="product-details-images slider-navigation-1">
-                                    <div className="lg-image">
-                                        <img src={product.image} alt="product image" />
+                                    <div style={{backgroundImage:'url("https://t3.ftcdn.net/jpg/02/31/80/90/360_F_231809050_gePfxLmiCMgf7b5yQtXtJx8kabb5SYHz.jpg")'}} className="lg-image">
+                                        <img src={product.image} style={{objectFit:'contain', aspectRatio:"1/1"}} alt="product image" />
                                     </div>
                                 </div>
                             </div>
