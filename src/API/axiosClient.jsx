@@ -4,7 +4,7 @@ import queryString from 'query-string';
 // Set up default config for http requests here
 // Please have a look at here `https://github.com/axios/axios#requestconfig` for the full list of configs
 const axiosClient = axios.create({
-    baseURL: 'https://server-app-bv0n.onrender.com', //cổng local http://localhost:8000 cỏng render https://server-app-bv0n.onrender.com
+    baseURL: 'http://localhost:8000', //cổng local http://localhost:8000 cỏng render https://server-app-bv0n.onrender.com
     headers: {
         'content-type': 'application/json',
         'Access-Control-Allow-Origin': '*',

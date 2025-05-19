@@ -96,7 +96,11 @@ function Home_Product(props) {
                         </div>
                         <Slider {...settings}>
                             {
-                                products && products.map(value => (
+                                products && products.map(value => {
+                                    // Kiểm tra xem value có tồn tại không
+                                    if (!value) return null;
+
+                                    return (
                                     <div className="col-lg-12 col_product" style={{ zIndex: '999', height: '30rem', position: 'relative' }} key={value._id}>
                                         <div className="single-product-wrap">
                                             <div className="product-image">
@@ -125,19 +129,20 @@ function Home_Product(props) {
                                                         <span className="new-price">{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(value.price_product)+ ' VNĐ'}</span>
                                                     </div>
                                                 </div>
-                                                {/* <div className="add_actions">
-                                                    <ul className="add-actions-link">                                                      
+                                                <div className="add_actions">
+                                                    <ul className="add-actions-link">
                                                         <li><a href="#" title="quick view"
                                                             className="links-details"
                                                             data-toggle="modal"
                                                             data-target={`#${value._id}`}
                                                             onClick={() => GET_id_modal(`${value._id}`)}><i className="fa fa-eye"></i></a></li>
                                                     </ul>
-                                                </div> */}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                ))
+                                    );
+                                })
                             }
                         </Slider>
                     </div>
