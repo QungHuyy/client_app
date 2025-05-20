@@ -21,7 +21,21 @@ axiosClient.interceptors.response.use((response) => {
     }
     return response;
 }, (error) => {
-    // Handle errors
+    // Xử lý lỗi HTTP
+    console.error("API Error:", error.response || error);
+
+    // Trả về lỗi để component có thể xử lý
+    if (error.response) {
+        // Lỗi từ server (status code không phải 2xx)
+        console.error("Server error:", error.response.status, error.response.data);
+    } else if (error.request) {
+        // Không nhận được phản hồi từ server
+        console.error("No response from server:", error.request);
+    } else {
+        // Lỗi khi thiết lập request
+        console.error("Request error:", error.message);
+    }
+
     throw error;
 });
 export default axiosClient;

@@ -32,20 +32,20 @@ function Cart(props) {
     useEffect(() => {
         set_list_carts(JSON.parse(localStorage.getItem('carts')) || [])
         Sum_Price(JSON.parse(localStorage.getItem('carts')) || [], 0)
-        
+
         // Lấy thông tin tồn kho của tất cả sản phẩm trong giỏ hàng
         const fetchProductInventory = async () => {
             const carts = JSON.parse(localStorage.getItem('carts')) || []
             const inventory = {}
-            
+
             for (const item of carts) {
                 const product = await Product.Get_Detail_Product(item.id_product)
                 inventory[item.id_product] = product.inventory || { S: product.number || 0, M: 0, L: 0 }
             }
-            
+
             setProductInventory(inventory)
         }
-        
+
         fetchProductInventory()
     }, [count_change])
 
@@ -54,7 +54,7 @@ function Cart(props) {
     // Hàm này dùng để tính tổng tiền
     function Sum_Price(carts, sum_price) {
         if (!carts || carts.length === 0) return
-        
+
         carts.map(value => {
             return sum_price += parseInt(value.count) * parseInt(value.price_product)
         })
@@ -65,9 +65,9 @@ function Cart(props) {
     // Hàm này dùng để tăng số lượng
     const upCount = (count, id_cart, id_product, size) => {
         // Kiểm tra số lượng tồn kho của sản phẩm theo size
-        const availableQuantity = productInventory[id_product] ? 
+        const availableQuantity = productInventory[id_product] ?
             (productInventory[id_product][size] || 0) : 0
-            
+
         if (parseInt(count) >= availableQuantity) {
             alert(`Chỉ còn ${availableQuantity} sản phẩm size ${size} trong kho!`)
             return
@@ -149,12 +149,18 @@ function Cart(props) {
     const [errorCode, setErrorCode] = useState(false)
 
     const handlerCoupon = async (e) => {
-
         e.preventDefault()
-        
-        if (!sessionStorage.getItem('id_user')){
-            set_show_error(true)
-        }else{
+
+        try {
+            if (!sessionStorage.getItem('id_user')){
+                set_show_error(true)
+                return
+            }
+
+            if (!coupon || coupon.trim() === '') {
+                setErrorCode(true)
+                return
+            }
 
             const params = {
                 id_user: sessionStorage.getItem('id_user'),
@@ -165,22 +171,32 @@ function Cart(props) {
 
             const response = await CouponAPI.checkCoupon(query)
 
-            if (response.msg === 'Không tìm thấy'){
+            if (!response) {
                 setErrorCode(true)
-            }else if (response.msg === 'Bạn đã sử dụng mã này rồi'){
+                return
+            }
+
+            if (response.msg === 'Không tìm thấy' ||
+                response.msg === 'Bạn đã sử dụng mã này rồi' ||
+                response.msg === 'Mã giảm giá đã hết lượt sử dụng'){
                 setErrorCode(true)
-            }else{
+            } else if (response.msg === 'Thành công' && response.coupon) {
                 localStorage.setItem('id_coupon', response.coupon._id)
                 localStorage.setItem('coupon', JSON.stringify(response.coupon))
 
-                setDiscount((total_price * response.coupon.promotion) / 100)
+                const discountAmount = (total_price * response.coupon.promotion) / 100
+                setDiscount(discountAmount)
 
-                const newTotal = total_price - ((total_price * response.coupon.promotion) / 100)
-
+                const newTotal = total_price - discountAmount
                 set_new_price(newTotal)
                 set_show_success(true)
+            } else {
+                // Trường hợp không xác định
+                setErrorCode(true)
             }
-
+        } catch (error) {
+            console.error("Error checking coupon:", error)
+            setErrorCode(true)
         }
 
         setTimeout(() => {
@@ -272,9 +288,9 @@ function Cart(props) {
                                                 <tbody>
                                                     {
                                                         list_carts && list_carts.map((value, index) => {
-                                                            const availableQuantity = productInventory[value.id_product] ? 
+                                                            const availableQuantity = productInventory[value.id_product] ?
                                                                 (productInventory[value.id_product][value.size] || 0) : 0
-                                                                
+
                                                             return (
                                                                 <tr key={index}>
                                                                     <td className="li-product-remove">
