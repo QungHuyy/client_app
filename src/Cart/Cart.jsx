@@ -103,7 +103,7 @@ function Cart(props) {
 
     // Hàm này dùng để xóa sản phẩm khỏi giỏ hàng
     const deleteProduct = (id_cart) => {
-        CartsLocal.removeProduct(id_cart)
+        CartsLocal.deleteProduct(id_cart)
 
         const action_change_count = changeCount(count_change)
         dispatch(action_change_count)
