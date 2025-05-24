@@ -88,27 +88,66 @@ function Home(props) {
         <div className="container">
             <div className="slider-with-banner">
                 <div className="row">
-                    <div className="col-lg-8 col-md-8">
-                        <div>
+                    <div className="col-lg-12 col-md-12">
+                        <div id="mainBannerCarousel" className="carousel slide" data-ride="carousel">
+                            <ol className="carousel-indicators">
+                                <li data-target="#mainBannerCarousel" data-slide-to="0" className="active"></li>
+                                <li data-target="#mainBannerCarousel" data-slide-to="1"></li>
+                                <li data-target="#mainBannerCarousel" data-slide-to="2"></li>
+                            </ol>
                             <div className="carousel-inner">
-                                <div className="single-slide align-center-left animation-style-01 bg-1"
-                                    style={{ backgroundImage: `url(https://cdn.shopify.com/s/files/1/2598/6284/files/3rd_Banner_5_1600x.jpg?v=1593522251)` }}>
-                                    <div className="slider-progress"></div>
-
+                                <div className="carousel-item active">
+                                    <div className="single-slide align-center-left animation-style-01"
+                                        style={{ 
+                                            backgroundImage: `url(https://static.vecteezy.com/system/resources/previews/044/637/679/non_2x/summer-sale-poster-or-banner-template-featuring-a-tropical-beach-scene-with-sun-and-party-elements-product-display-tropical-summer-scene-perfect-for-promoting-your-summer-products-on-blue-background-vector.jpg)`,
+                                            height: '400px',
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center'
+                                        }}>
+                                        <div className="slider-progress"></div>
+                                        
+                                    </div>
                                 </div>
-
+                                <div className="carousel-item">
+                                    <div className="single-slide align-center-left animation-style-02"
+                                        style={{ 
+                                            backgroundImage: `url(https://img.freepik.com/premium-vector/fashion-sale-banner-template-with-colorful-background_23-2148622444.jpg)`,
+                                            height: '400px',
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center'
+                                        }}>
+                                        <div className="slider-progress"></div>
+                                        <div className="slider-content">
+                                            <h2 className="helvetica-font">New Arrivals</h2>
+                                            <h3 className="helvetica-font">Exclusive <span>Collection</span></h3>
+                                            <a href="/shop" className="slider-btn">Discover Now</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="carousel-item">
+                                    <div className="single-slide align-center-left animation-style-01"
+                                        style={{ 
+                                            backgroundImage: `url(https://img.freepik.com/free-vector/gradient-sale-background_23-2149050986.jpg)`,
+                                            height: '400px',
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center'
+                                        }}>
+                                        <div className="slider-progress"></div>
+                                        <div className="slider-content">
+                                            <h2 className="helvetica-font">Special Offer</h2>
+                                            <h3 className="helvetica-font">Get up to <span>30% Off</span></h3>
+                                            <a href="/shop" className="slider-btn">Shop Collection</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-4 col-md-4 text-center pt-xs-30">
-                        <div className="li-banner">
-                            <a href="#">
-                                <img src="https://img3.thuthuatphanmem.vn/uploads/2019/10/14/banner-fashion_113854663.jpg" alt="" />
+                            <a className="carousel-control-prev" href="#mainBannerCarousel" role="button" data-slide="prev">
+                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Previous</span>
                             </a>
-                        </div>
-                        <div className="li-banner mt-15 mt-sm-30 mt-xs-30">
-                            <a href="#">
-                                <img src="https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto,q_auto,f_auto/gigs/114148366/original/624c3d3004215425a321fa7378f0228beb349e65/do-shopify-store-banner-header-and-slider-image-design-1906.png" alt="" />
+                            <a className="carousel-control-next" href="#mainBannerCarousel" role="button" data-slide="next">
+                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Next</span>
                             </a>
                         </div>
                     </div>
@@ -118,7 +157,7 @@ function Home(props) {
 
             <Home_Category GET_id_modal={GET_id_modal} />
 
-            <div className="li-static-banner">
+            {/* <div className="li-static-banner">
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-4 col-md-4 text-center">
@@ -144,7 +183,7 @@ function Home(props) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Thêm section Unisex */}
             <Home_Product gender={`Unisex`} category={'all'} GET_id_modal={GET_id_modal} />
@@ -197,7 +236,7 @@ function Home(props) {
                                             <div className="product-desc">
                                                 <p>
                                                     <span>
-                                                        {product_detail.describe} Veritatis reiciendis hic voluptatibus aperiam culpa ullam dolor esse error ducimus itaque ipsa facilis saepe rem veniam exercitationem quos magnam, odit perspiciatis.
+                                                        {product_detail.describe}
                                                     </span>
                                                 </p>
                                             </div>
