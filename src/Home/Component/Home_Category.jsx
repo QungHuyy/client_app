@@ -215,38 +215,38 @@ function Home_Category(props) {
                                         {saleProducts.map(product => (
                                             <div className="col-lg-12 col_product" style={{ zIndex: '999', height: '30rem', position: 'relative' }} key={product._id}>
                                                 <div className="single-product-wrap">
-                                                    <div className="product-image" style={{backgroundImage:'url("https://res.cloudinary.com/dwmsfixy5/image/upload/v1747517407/360_F_231809050_gePfxLmiCMgf7b5yQtXtJx8kabb5SYHz_dnhfpx.jpg")'}}>
+                                                    <div className="product-image" style={{position:"relative"}}>
                                                         <Link to={`/detail/${product._id}`}>
                                                             <img 
                                                                 src={optimizeCloudinaryImage(product.image)} 
                                                                 alt={product.name_product} 
-                                                                style={{width:'100%', objectFit:"contain", aspectRatio:"1/1"}}
+                                                                style={{width:"100%", objectFit:"contain",height:'100%'}}
                                                             />
                                                         </Link>
-                                                        <span className="sticker">-{product.promotion}%</span>
+                                                        <span style={{position:"absolute", top:5,right:5, padding:"3px 12px",fontSize:18, backgroundColor:"rgb(253, 49, 49)",color:"#fff", borderRadius:20}} className="sticker">-{product.promotion}%</span>
                                                     </div>
                                                     <div className="product_desc">
                                                         <div className="product_desc_info">
                                                             <div className="product-review">
-                                                                <h5 className="manufacturer helvetica-font">
+                                                                <h5 className="manufacturer helvetica-font" style={{marginTop:10}}>
                                                                     <Link to={`/detail/${product._id}`}>{product.name_product}</Link>
                                                                 </h5>
                                                                 <div className="rating-box">
-                                                                    <ul className="rating">
-                                                                        <li><i className="fa fa-star-o"></i></li>
-                                                                        <li><i className="fa fa-star-o"></i></li>
-                                                                        <li><i className="fa fa-star-o"></i></li>
-                                                                        <li className="no-star"><i className="fa fa-star-o"></i></li>
-                                                                        <li className="no-star"><i className="fa fa-star-o"></i></li>
+                                                                    <ul style={{display:"flex", alignItems:"center", gap:2}} className="rating">
+                                                                        <li style={{display:"inline"}} ><i className="fa fa-star-o"></i></li>
+                                                                        <li style={{display:"inline"}}><i className="fa fa-star-o"></i></li>
+                                                                        <li style={{display:"inline"}}><i className="fa fa-star-o"></i></li>
+                                                                        <li style={{display:"inline"}} className="no-star"><i className="fa fa-star-o"></i></li>
+                                                                        <li style={{display:"inline"}} className="no-star"><i className="fa fa-star-o"></i></li>
                                                                     </ul>
                                                                 </div>
                                                             </div>
                                                             <div className="price-box helvetica-font">
-                                                                <del className="new-price" style={{ color: '#525252' }}>
+                                                                <del className="new-price" style={{ color: '#525252' ,fontWeight:"bold"}}>
                                                                     {new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(product.price_product) + ' VNĐ'}
                                                                 </del>
                                                                 <br />
-                                                                <span className="new-price" style={{ color: '#e80f0f' }}>
+                                                                <span className="new-price" style={{ color: '#e80f0f',fontWeight:"bold", fontSize:16 }}>
                                                                     {new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(product.salePrice) + ' VNĐ'}
                                                                 </span>
                                                             </div>
@@ -258,6 +258,7 @@ function Home_Category(props) {
                                                                         href="#" 
                                                                         title="Xem nhanh" 
                                                                         className="links-details helvetica-font" 
+                                                                        style={{border:"1px solid #ccc", padding:4,borderRadius:4, backgroundColor:"#666", color:"#fff"}}
                                                                         data-toggle="modal" 
                                                                         data-target={`#${product._id}`} 
                                                                         onClick={() => GET_id_modal(product._id, product.salePrice)}
@@ -272,8 +273,8 @@ function Home_Category(props) {
                                             </div>
                                         ))}
                                     </Slider>
-                                    <div className="view-all-btn-wrapper">
-                                        <Link to="/shop" style={{backgroundColor:"rgba(78, 80, 244, 1)",padding:"5px 10px", borderRadius:8, color:"#fff"}} className="view-all-btn helvetica-font">
+                                    <div className="view-all-btn-wrapper" style={{width:"100%", display:"flex", justifyContent:"center" ,marginTop:60}}>
+                                        <Link to="/shop" style={{padding:"10px 45px", border:"1px solid #666",color:"#000"}} className="view-all-btn">
                                             Xem tất cả sản phẩm khuyến mãi
                                         </Link>
                                     </div>

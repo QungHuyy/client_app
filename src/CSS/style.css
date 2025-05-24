@@ -2105,6 +2105,15 @@ textarea:focus {
 	display: -ms-flexbox;
 	display: flex;
 }
+
+.view-all-btn{
+	font-family:  Helvetica, sans-serif;
+	transition: all .2s ease;
+}
+.view-all-btn:hover{
+	background-color: #fed700;
+	
+}
 .li-blog-sidebar .li-recent-post .li-recent-post-thumb {
 	width: 65px;
 	border: 1px solid #e1e1e1;
